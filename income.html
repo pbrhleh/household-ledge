@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수입 관리 - 행복한 우리집</title>
+    <!-- Tailwind, Tippy.js CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.7/tippy.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.7/tippy.umd.min.js"></script>
+
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root {
+            --primary-color: #1E3A8A;
+            --primary-orange: #F4A261;
+            --primary-red: #EF4444;
+            --primary-blue: #3B82F6;
+            --background: #F9FAFB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+            --main-color: #1d4ed8;
+            --main-color-600: #1e40af;
+            --main-color-700: #1e3a8a;
+            --login-color: #3b82f6;
+            --login-color-600: #2563eb;
+        }
+        
+        body {
+            font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item.active::after {
+            width: 100%;
+        }
+
+        .nav-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .transaction-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .transaction-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-ring circle {
+            fill: none;
+        }
+
+        .progress-ring .progress {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.3s;
+        }
+
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            background: #F3F4F6;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover {
+            background: #E5E7EB;
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-input {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30,58,138,0.1);
+        }
+
+        footer {
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        /* 버튼 스타일 */
+        .quick-input-btn {
+            padding: 0.5rem 1rem;
+            background-color: #1e3a8a;
+            color: white;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            min-width: 6rem;
+            height: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .quick-input-btn:hover {
+            background-color: #1e40af;
+        }
+
+        .text-blue-900 {
+            color: #1E3A8A;
+        }
+
+        .bg-gray-50 {
+            background-color: #F9FAFB;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Top Navigation (index.html과 동일) -->
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <!-- 로고 및 메인 네비게이션 -->
+                    <div class="flex">
+                        <div class="flex items-center flex-shrink-0">
+                            <a href="index.html" class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 mr-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                <span class="text-lg font-semibold text-gray-900">행복한 우리집</span>
+                            </a>
+                        </div>
+                        
+                        <div class="hidden md:ml-8 md:flex md:space-x-4">
+                            <!-- INCOME 메뉴 활성화 -->
+                            <a href="income.html" class="nav-item active">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                INCOME
+                            </a>
+                            <a href="expenses.html" class="nav-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                EXPENSES
+                            </a>
+                            <a href="investment.html" class="nav-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                                INVESTMENT
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Auth Section (index.html과 동일하게) -->
+                    <div class="flex items-center space-x-4">
+                        <input type="email" 
+                               placeholder="이메일" 
+                               class="form-input w-32 md:w-40 h-8 text-xs" />
+                        <input type="password" 
+                               placeholder="비밀번호" 
+                               class="form-input w-32 md:w-40 h-8 text-xs" />
+                        <button class="px-4 h-8 text-sm bg-blue-900 text-white rounded-lg 
+                                     hover:bg-blue-800 transition-colors whitespace-nowrap
+                                     min-w-[6rem]">
+                            로그인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <!-- 카테고리별 수입 현황 -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold">카테고리별 수입 현황</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="text-sm font-medium">도현</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold">1,000,000원</div>
+                                <div class="text-sm text-gray-500">43.7%</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-sm font-medium">승민</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold">1,000,000원</div>
+                                <div class="text-sm text-gray-500">40.2%</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                                <span class="text-sm font-medium">기타</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold">150,000원</div>
+                                <div class="text-sm text-gray-500">10.1%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 수입 내역 -->
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+                    <div class="px-6 py-4 flex justify-between items-center bg-white">
+                        <h2 class="text-lg font-semibold">수입 내역</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 h-7 text-xs bg-gray-100 text-gray-700 rounded-md
+                                         hover:bg-gray-200 transition-colors whitespace-nowrap
+                                         flex items-center justify-center border border-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" 
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M12 4v16m8-8H4" />
+                                </svg>
+                                행 추가
+                            </button>
+                            <button class="px-3 h-7 text-xs bg-gray-100 text-gray-700 rounded-md
+                                         hover:bg-gray-200 transition-colors whitespace-nowrap
+                                         flex items-center justify-center border border-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" 
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                                저장
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <div class="max-w-[1200px] mx-auto">
+                                <table class="w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50 border-t border-gray-200">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                날짜
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                카테고리
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                내용
+                                            </th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                금액
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                구분
+                                            </th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                관리
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="incomeTableBody">
+                                        <!-- 수입 내역 예시 -->
+                                        <tr class="hover:bg-gray-50 transition-colors income-row">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input type="date" class="form-input w-full hidden" value="2025-01-25" />
+                                                <span class="editable-text">2025-01-25</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="dohyun" selected>도현</option>
+                                                    <option value="seungmin">승민</option>
+                                                    <option value="etc">기타</option>
+                                                </select>
+                                                <span class="editable-text">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                        도현
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <input type="text" class="form-input w-full hidden" value="1월 급여" />
+                                                <span class="editable-text">1월 급여</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-blue-500 font-medium">
+                                                <input type="number" class="form-input w-full hidden text-right" value="2800000" />
+                                                <span class="editable-text">1,000,000원</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="dohyun" selected>도현</option>
+                                                    <option value="seungmin">승민</option>
+                                                </select>
+                                                <span class="editable-text">도현</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <div class="flex justify-center space-x-2">
+                                                    <button class="save-btn hidden text-emerald-600 hover:text-emerald-700">저장</button>
+                                                    <button class="cancel-btn hidden text-gray-600 hover:text-gray-800">취소</button>
+                                                    <button class="delete-btn text-red-600 hover:text-red-800">삭제</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- 다른 수입 내역도 같은 패턴으로 추가 -->
+                                        <tr class="hover:bg-gray-50 transition-colors income-row">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input type="date" class="form-input w-full hidden" value="2025-02-01" />
+                                                <span class="editable-text">2025-01-25</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="seungmin" selected>승민</option>
+                                                    <option value="dohyun">도현</option>
+                                                    <option value="etc">기타</option>
+                                                </select>
+                                                <span class="editable-text">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">승민</span>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <input type="text" class="form-input w-full hidden" value="1월 급여" />
+                                                <span class="editable-text">1월 급여</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-blue-500 font-medium">
+                                                <input type="number" class="form-input w-full hidden text-right" value="3000000" />
+                                                <span class="editable-text">1,000,000원</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="seungmin" selected>승민</option>
+                                                    <option value="dohyun">도현</option>
+                                                </select>
+                                                <span class="editable-text">승민</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <div class="flex justify-center space-x-2">
+                                                    <button class="save-btn hidden text-emerald-600 hover:text-emerald-700">저장</button>
+                                                    <button class="cancel-btn hidden text-gray-600 hover:text-gray-800">취소</button>
+                                                    <button class="delete-btn text-red-600 hover:text-red-800">삭제</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50 transition-colors income-row">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input type="date" class="form-input w-full hidden" value="2025-02-02" />
+                                                <span class="editable-text">2025-02-02</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="etc" selected>기타</option>
+                                                    <option value="dohyun">도현</option>
+                                                    <option value="seungmin">승민</option>
+                                                </select>
+                                                <span class="editable-text">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">기타</span>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <input type="text" class="form-input w-full hidden" value="기타 수입" />
+                                                <span class="editable-text">기타 수입</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-blue-500 font-medium">
+                                                <input type="number" class="form-input w-full hidden text-right" value="150000" />
+                                                <span class="editable-text">150,000원</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+                                                <select class="form-input w-full hidden">
+                                                    <option value="etc" selected>기타</option>
+                                                    <option value="dohyun">도현</option>
+                                                    <option value="seungmin">승민</option>
+                                                </select>
+                                                <span class="editable-text">기타</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                <div class="flex justify-center space-x-2">
+                                                    <button class="save-btn hidden text-emerald-600 hover:text-emerald-700">저장</button>
+                                                    <button class="cancel-btn hidden text-gray-600 hover:text-gray-800">취소</button>
+                                                    <button class="delete-btn text-red-600 hover:text-red-800">삭제</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="border-t border-gray-200"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer (index.html과 동일) -->
+        <footer class="bg-white border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-center items-center h-8">
+                    <span class="text-sm text-gray-900">© 2025 승민/도현 All rights reserved</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 스크립트 (index/expenses.html과 유사하게) -->
+    <script>
+        // 툴팁 초기화
+        tippy('[title]', {
+            placement: 'top',
+            arrow: true,
+            delay: [200, 0]
+        });
+
+        // 숫자 포맷팅 함수
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 모든 금액에 천단위 콤마 적용
+        document.querySelectorAll('.stat-value, .amount-positive, .amount-negative').forEach(el => {
+            const value = el.textContent.replace(/[^0-9]/g, '');
+            if (value) {
+                const formattedValue = formatNumber(value);
+                el.textContent = el.textContent.replace(value, formattedValue);
+            }
+        });
+
+        // 필터 칩 토글 (필요시 사용)
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            });
+        });
+
+        // 프로그레스 링 애니메이션 (만약 필요하다면)
+        const progressCircle = document.querySelector('.progress-ring .progress');
+        if (progressCircle) {
+            const percentage = 70;
+            const radius = 54;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (percentage / 100 * circumference);
+            progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // 아래는 수입 내역 테이블용 스크립트 (expenses.html과 유사)
+        const incomeTableBody = document.getElementById('incomeTableBody');
+
+        // 필요 시 "빈 행 추가" 함수
+        function createEmptyIncomeRow() {
+            const today = new Date().toISOString().split('T')[0];
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 transition-colors income-row';
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input type="date" class="form-input w-full" value="${today}" />
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <select class="form-input w-full">
+                        <option value="">선택</option>
+                        <option value="dohyun">도현</option>
+                        <option value="seungmin">승민</option>
+                        <option value="etc">기타</option>
+                    </select>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <input type="text" class="form-input w-full" placeholder="내용을 입력하세요" />
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-blue-500 font-medium">
+                    <input type="number" class="form-input w-full text-right" placeholder="0" />
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+                    <select class="form-input w-full">
+                        <option value="">선택</option>
+                        <option value="dohyun">도현</option>
+                        <option value="seungmin">승민</option>
+                    </select>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <div class="flex justify-center space-x-2">
+                        <button class="save-btn text-emerald-600 hover:text-emerald-700">저장</button>
+                        <button class="cancel-btn text-gray-600 hover:text-gray-800">취소</button>
+                    </div>
+                </td>
+            `;
+            return tr;
+        }
+
+        // 더블클릭으로 수정 모드 전환
+        document.addEventListener('dblclick', function(e) {
+            const row = e.target.closest('.income-row');
+            if (row && !row.querySelector('input:not(.hidden)')) {
+                makeIncomeRowEditable(row);
+            }
+        });
+
+        function makeIncomeRowEditable(row) {
+            row.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('hidden');
+            });
+            row.querySelectorAll('.editable-text').forEach(span => {
+                span.classList.add('hidden');
+            });
+            row.querySelector('.save-btn')?.classList.remove('hidden');
+            row.querySelector('.cancel-btn')?.classList.remove('hidden');
+        }
+
+        // 저장 버튼 이벤트
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('save-btn')) {
+                const row = e.target.closest('tr');
+                const inputs = row.querySelectorAll('.form-input');
+                const spans = row.querySelectorAll('.editable-text');
+                
+                // 모든 필드가 채워졌는지 확인
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!input.value) isValid = false;
+                });
+
+                if (!isValid) {
+                    alert('모든 필드를 채워주세요.');
+                    return;
+                }
+
+                // 신규 행인 경우
+                if (spans.length === 0) {
+                    // 실제 저장 로직 필요 시 추가
+                    row.remove();
+                    incomeTableBody.appendChild(createEmptyIncomeRow());
+                } else {
+                    // 기존 행 수정
+                    updateIncomeRow(row, inputs, spans);
+                }
+            }
+        });
+
+        // 취소 버튼
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('cancel-btn')) {
+                const row = e.target.closest('tr');
+                const inputs = row.querySelectorAll('.form-input');
+                const spans = row.querySelectorAll('.editable-text');
+
+                if (spans.length === 0) {
+                    // 신규 행이었으면 제거
+                    row.remove();
+                } else {
+                    // 기존 행이면 원래값 복구
+                    inputs.forEach(input => {
+                        input.classList.add('hidden');
+                    });
+                    spans.forEach(span => {
+                        span.classList.remove('hidden');
+                    });
+                    row.querySelector('.save-btn')?.classList.add('hidden');
+                    row.querySelector('.cancel-btn')?.classList.add('hidden');
+                }
+            }
+        });
+
+        // 삭제 버튼
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-btn')) {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    e.target.closest('tr').remove();
+                }
+            }
+        });
+
+        function updateIncomeRow(row, inputs, spans) {
+            inputs.forEach((input, index) => {
+                let value = input.value;
+                if (input.type === 'number') {
+                    value = formatNumber(value) + '원';
+                } else if (input.tagName === 'SELECT') {
+                    value = input.options[input.selectedIndex].text;
+                }
+                spans[index].textContent = value;
+                input.classList.add('hidden');
+                spans[index].classList.remove('hidden');
+            });
+            row.querySelector('.save-btn')?.classList.add('hidden');
+            row.querySelector('.cancel-btn')?.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
